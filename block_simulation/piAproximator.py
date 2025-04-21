@@ -50,4 +50,3 @@ def collision_simulation(mass_factor):
             b2.set_velocity(-b2.get_velocity())
         collision_count += 1
     return collision_count
-        
