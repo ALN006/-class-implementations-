@@ -40,6 +40,7 @@ class block(object):
         self.principal_value = (self.mass**0.5)*self.velocity
 
 def collision_simulation(mass_factor):
+    "todo"
     b1 = block(mass_factor, -1.0)
     b2 = block(1.0, 0.0)
     collision_count = 0
