@@ -5,7 +5,7 @@ class node(object):
 
 
     def __init__(self: "node", data: object) -> None:
-        
+
         self.data = data
 
 
@@ -17,10 +17,15 @@ class node(object):
     def __repr__(self: "node") -> str:
 
         return str(self.data)
-
     
+    
+    def __hash__(self:"node") -> int:
+
+        return hash(self.data)
+    
+
     def get_data(self: "node") -> object:
-        
+
         return self.data
 
 
@@ -63,7 +68,7 @@ class digraph(object):
     ''' self is a collection of consistend nodes and edges'''
 
 
-    def __init__(self: "digraph", nodes: list["node"], edges: list["edge"]) -> None:
+    def __init__(self: "digraph", nodes: set["node"], edges: list["edge"]) -> None:
         
         self.nodes = nodes
         self.edges = edges
@@ -73,24 +78,28 @@ class digraph(object):
         ''' I dont know how to do this well'''
 
         return ""
+    
+
+    def __contains__(self: "digraph", node: "node") -> bool:
+
+        return node in self.nodes
 
 
     def add_node(self: "digraph", add_type: str, new_node: "node", old_node: "node", edge_weight: float) -> None:
         
         assert old_node in self.nodes
-        assert new_node not in self.nodes
-        assert type in ("parent", "child")
+        assert add_type in ("parent", "child")
 
         if add_type == "parent": 
             self.edges += [edge(edge_weight, new_node, old_node)] #because parent comes first in edge initialization
         else:
             self.edges += [edge(edge_weight, old_node, new_node)]
-        self.nodes += [new_node]
+        self.nodes.add(new_node)
     
 
     def remove_node(self: "digraph", gone: "node") -> None:
 
-        self.nodes = [ node for node in self.nodes if node != gone]
+        self.nodes = set( node for node in self.nodes if node != gone )
         self.edges = [ edge for edge in self.edges if (edge.get_origin() != gone and edge.get_destination() != gone)]
 
 
@@ -102,6 +111,16 @@ class digraph(object):
     def get_edges(self: "digraph") -> list["edge"]:
 
         return self.edges
+    
+    
+    def get_children(self: "digraph") -> dict["node":list["node"]]:
+
+        ans = { node : [] for node in self.nodes}
+
+        for edge in self.edges:
+            ans[edge.get_origin()] += [edge.get_destination()]
+
+        return ans 
     
 
 
