@@ -103,7 +103,7 @@ class digraph(object):
         self.edges = [ edge for edge in self.edges if (edge.get_origin() != gone and edge.get_destination() != gone)]
 
 
-    def get_nodes(self: "digraph") -> list["node"]:
+    def get_nodes(self: "digraph") -> set["node"]:
         
         return self.nodes
     
@@ -113,15 +113,48 @@ class digraph(object):
         return self.edges
     
     
-    def get_children(self: "digraph") -> dict["node":list["node"]]:
+    def get_children(self: "digraph") -> dict["node",list["node"]]:
 
         ans = { node : [] for node in self.nodes}
 
         for edge in self.edges:
             ans[edge.get_origin()] += [edge.get_destination()]
 
-        return ans 
-    
+        return ans
+
+
+    def dfs(self: "digraph", origin: "node", destination: "node") -> list[list["node"]]:
+
+        ''' self is digraph containing origin and destination as 2 nodes
+            returns a list of valid paths between origin and destination as determined by dfs
+
+            a valid path here is an orderd list of nodes such that one can sequentially traverse
+            the nodes to end at destination'''
+
+        assert origin in self.nodes
+        assert destination in self.nodes
+
+        paths = []
+
+        children = self.get_children()
+        switch_stack = [iter(children[origin])]
+        path_stack = [origin]
+        visited = set(path_stack)
+
+        while path_stack:
+            try:
+                next_node = next(switch_stack[-1])
+                if next_node in visited:
+                    continue
+                path_stack.append(next_node)
+                switch_stack.append(iter(children[next_node]))
+                visited.add(next_node)
+                if next_node == destination:
+                    paths.append(path_stack.copy())
+            except StopIteration:
+                switch_stack.pop()
+                visited.remove(path_stack.pop())
+        return paths
 
 
 class graph(digraph):
@@ -136,4 +169,4 @@ class graph(digraph):
 
         self.edges += [edge(out_weight, old_node, new_node)]
         self.edges += [edge(in_weight, new_node, old_node)]
-        self.nodes += [new_node]
+        self.nodes.add(new_node)
